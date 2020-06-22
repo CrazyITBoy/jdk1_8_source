@@ -108,6 +108,12 @@ import java.util.regex.PatternSyntaxException;
  * @since   JDK1.0
  */
 
+/**
+ * String类设计成final的目的
+ * 1、安全性 防止内部值被修改（eg:调用系统级校验的时候，在进行一系列的校验的后，如果是可变的类的话，那么它里面的值又发生变化）
+ * 2、性能 缓存结果、提高性能，无须考虑值在传递的时候被修改，不需要复制一份副本。同时JVM的字符串常量池的实现也一定程度的依赖final，
+ *   假设String是一个可变类的话，那么A对象和B对象同时指向了字符串常量池的某个字符串，那么A的修改，必然导致B的修改，那么显然是不符合逻辑的
+ */
 public final class String
     implements java.io.Serializable, Comparable<String>, CharSequence {
     /** The value is used for character storage. */
@@ -134,6 +140,9 @@ public final class String
      * an empty character sequence.  Note that use of this constructor is
      * unnecessary since Strings are immutable.
      */
+    /**
+     * 无参构造 赋空串值
+     */
     public String() {
         this.value = "".value;
     }
@@ -148,6 +157,11 @@ public final class String
      * @param  original
      *         A {@code String}
      */
+    /**
+     * 以String对象作为参数传入构造
+     * 原String的value和hash作为值传入
+     * @param original
+     */
     public String(String original) {
         this.value = original.value;
         this.hash = original.hash;
@@ -161,6 +175,11 @@ public final class String
      *
      * @param  value
      *         The initial value of the string
+     */
+    /**
+     * 字符串数组传入的构造
+     * 通过调用Arrays.copyOf拷贝到Stirng的value
+     * @param value
      */
     public String(char value[]) {
         this.value = Arrays.copyOf(value, value.length);
@@ -186,6 +205,12 @@ public final class String
      * @throws  IndexOutOfBoundsException
      *          If the {@code offset} and {@code count} arguments index
      *          characters outside the bounds of the {@code value} array
+     */
+    /**
+     * 传入的字符串数组指定开始和长度拷贝数据
+     * @param value
+     * @param offset
+     * @param count
      */
     public String(char value[], int offset, int count) {
         if (offset < 0) {
@@ -574,6 +599,10 @@ public final class String
      *
      * @param  buffer
      *         A {@code StringBuffer}
+     */
+    /**
+     * StringBuffer是线程安全的 所以增加同步
+     * @param buffer
      */
     public String(StringBuffer buffer) {
         synchronized(buffer) {
@@ -3141,6 +3170,10 @@ public final class String
         return Double.toString(d);
     }
 
+
+    /**
+     * 当字符串常量池有这个字符串的时候返回字符串的地址，当没有的时候把他加入常量池这里是引用，然后返回引用
+     */
     /**
      * Returns a canonical representation for the string object.
      * <p>
