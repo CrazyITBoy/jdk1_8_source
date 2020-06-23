@@ -37,6 +37,11 @@ import java.util.function.Function;
 import sun.misc.SharedSecrets;
 
 /**
+ * 为什么寻找桶的index位置 要用（n-1）&hashCode
+ * 提高效率&操作比取mode快
+ */
+
+/**
  * Hash table based implementation of the <tt>Map</tt> interface.  This
  * implementation provides all of the optional map operations, and permits
  * <tt>null</tt> values and the <tt>null</tt> key.  (The <tt>HashMap</tt>
@@ -231,10 +236,20 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      */
 
     /**
+     * 初始化大小会参与hash运算，取16能够保证每次运算的末尾是二进制码末尾是1，这样能够保证既能出现奇数位
+     * 也能出现偶数位，减少了hash碰撞的概率，其实只要取2的幂就能够保证，为什么不取4 8 或者更大的呢
+     * 首先取4 或者 8过于小需要马上就扩容了，取得过大容易造成空浪费
+     *
+     */
+    /**
      * The default initial capacity - MUST be a power of two.
      */
     static final int DEFAULT_INITIAL_CAPACITY = 1 << 4; // aka 16
 
+    /**
+     * 为什么最大值取2^30次幂，首先取2的n次幂的目的是为了保证&运算算出来的结果等于取模出来的结果
+     * 那为什么不取int的最大值2^31，因为首位需要用来作为符号位表示正负
+     */
     /**
      * The maximum capacity, used if a higher value is implicitly specified
      * by either of the constructors with arguments.
@@ -243,10 +258,26 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     static final int MAXIMUM_CAPACITY = 1 << 30;
 
     /**
+     * 为什么扩容因子是0.75即3/4?
+     * 首先因为每次扩容都是2的次幂，为了保证扩容因子与长度乘积是整数，那为什么不取1/4 1/2 或者 1？
+     * 这样也是整数啊？
+     * 因为取得过小，就会频繁扩容，浪费空间，此时元素会特别的稀疏
+     * 如果取得过大，那么产生hash碰撞的几率就大大提升，这样的话，导致运行的效率会更低
+     * 之所以取0.75是基于性能和容量的考虑结果
+     * 还有一个比较有意思的解释是桶非空和空的概率都是0.5 通过牛顿二项式计算的结果是log(2)约等于0.69那么为了保证
+     * 取到一个可以和长度乘积是整数的，所以就取了比较接近的0.75
+     */
+    /**
      * The load factor used when none specified in constructor.
      */
     static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
+    /**
+     * 为什么树化是8（前提是最大的容量已经大于64）？
+     * 随机的hash码情况下，默认的加载因子0.75服从参数为0.5的泊松分布
+     * 粒度调整会产生较大的方差，由实验可以看出，当粒度是8的时候，产生较
+     * 大方差的概率非常小了。那么如果取得值大于8那么必然是更小的。
+     */
     /**
      * The bin count threshold for using a tree rather than list for a
      * bin.  Bins are converted to trees when adding an element to a
@@ -258,12 +289,21 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     static final int TREEIFY_THRESHOLD = 8;
 
     /**
+     * 为什么转换成链表是6
+     * 防止链表和树频繁转换，如果是7 那么删除一个元素就会转换，显然是不合理的。
+     */
+    /**
      * The bin count threshold for untreeifying a (split) bin during a
      * resize operation. Should be less than TREEIFY_THRESHOLD, and at
      * most 6 to mesh with shrinkage detection under removal.
      */
     static final int UNTREEIFY_THRESHOLD = 6;
 
+    /**
+     * 为什么最小的树化容量是64？
+     * 因为容量低于64的时候产生hash碰撞的几率大，这个时候比较容易形成长链表，
+     * 由于此时的数据不多，那么还是会优先考虑扩容来解决冲突问题
+     */
     /**
      * The smallest table capacity for which bins may be treeified.
      * (Otherwise the table is resized if too many nodes in a bin.)
