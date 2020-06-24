@@ -313,6 +313,10 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     static final int MIN_TREEIFY_CAPACITY = 64;
 
     /**
+     *
+     * Node：链表中的节点是由hash、key、value、next
+     */
+    /**
      * Basic hash bin node, used for most entries.  (See below for
      * TreeNode subclass, and in LinkedHashMap for its Entry subclass.)
      */
@@ -343,6 +347,13 @@ public class HashMap<K,V> extends AbstractMap<K,V>
             return oldValue;
         }
 
+        /**
+         *
+         * 1、是否当前对象引用
+         * 2、是否是entity的实现类，是的话，则进行判断key和value是否相等
+         * @param o
+         * @return
+         */
         public final boolean equals(Object o) {
             if (o == this)
                 return true;
@@ -358,6 +369,16 @@ public class HashMap<K,V> extends AbstractMap<K,V>
 
     /* ---------------- Static utilities -------------- */
 
+    /**
+     * 扰动函数 让散列值分布更加散列，让低位的随机性更加散列
+     * 把高位无符号位右移16位并异或原本的hashCode 就是为了混合原哈希码的高低位，以此来增加低位的随机性
+     * 同时高位右移了16位也能够保证高位的部分特征，可以说是变相的保留了高位
+     * 这个扰动函数能够使得hash的碰撞更加小
+     * 为什么要增加低位的随机性？
+     * 因为在进行获取桶的下标的时候，采用的是hash值与上长度减去1，为什么要将长度减1，
+     * 为了保证末位是0或者1，这样保证既能获取到奇数位也能取到偶数位，所以与后的值是可
+     * 以保证偶数也可以是奇数，同时因为长度更需要的是低位，所以需要干扰的是低位
+     */
     /**
      * Computes key.hashCode() and spreads (XORs) higher bits of hash
      * to lower.  Because the table uses power-of-two masking, sets of
@@ -385,7 +406,10 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      */
     static Class<?> comparableClassFor(Object x) {
         if (x instanceof Comparable) {
-            Class<?> c; Type[] ts, as; Type t; ParameterizedType p;
+            Class<?> c;
+            Type[] ts, as;
+            Type t;
+            ParameterizedType p;
             if ((c = x.getClass()) == String.class) // bypass checks
                 return c;
             if ((ts = c.getGenericInterfaces()) != null) {
