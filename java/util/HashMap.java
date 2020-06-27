@@ -600,6 +600,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     }
 
     /**
+     * 根据key获取value
      * Returns the value to which the specified key is mapped,
      * or {@code null} if this map contains no mapping for the key.
      *
@@ -623,6 +624,9 @@ public class HashMap<K,V> extends AbstractMap<K,V>
 
     /**
      * Implements Map.get and related methods.
+     * 根据key值获取节点，
+     * 判断节点类型是否为树节点，如果是树直接返回该节点，
+     * 如果不是树，判断hash值是否相等，并且判断key值是否相等（防止hash冲突）
      *
      * @param hash hash for key
      * @param key the key
