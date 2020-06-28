@@ -675,9 +675,8 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     }
 
     /**
-     * Associates the specified value with the specified key in this map.
-     * If the map previously contained a mapping for the key, the old
-     * value is replaced.
+     * 新增元素
+     * 获取key的hash值
      *
      * @param key key with which the specified value is to be associated
      * @param value value to be associated with the specified key
@@ -692,6 +691,8 @@ public class HashMap<K,V> extends AbstractMap<K,V>
 
     /**
      * Implements Map.put and related methods.
+     * 如果
+     *
      *
      * @param hash hash for key
      * @param key the key
