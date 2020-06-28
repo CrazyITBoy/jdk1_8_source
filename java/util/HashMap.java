@@ -437,7 +437,9 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     }
 
     /**
-     * Returns a power of two size for the given target capacity.
+     * 获得最接近的2^n次幂最接近的数字
+     * 为什么要cap-1呢，防止当前数字就是2^N次幂了 导致扩容两倍
+     * * Returns a power of two size for the given target capacity.
      */
     static final int tableSizeFor(int cap) {
         int n = cap - 1;
@@ -625,8 +627,10 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     /**
      * Implements Map.get and related methods.
      * 根据key值获取节点，
-     * 判断节点类型是否为树节点，如果是树直接返回该节点，
-     * 如果不是树，判断hash值是否相等，并且判断key值是否相等（防止hash冲突）
+     * 判断是否为首节点，是的话直接返回
+     * 然后遍历下一个节点
+     * 判断首节点是否是树节点，是树则遍历红黑树，寻找匹配的值
+     * 否则遍历链表 找到合适的值返回
      *
      * @param hash hash for key
      * @param key the key
@@ -634,15 +638,21 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      */
     final Node<K,V> getNode(int hash, Object key) {
         Node<K,V>[] tab; Node<K,V> first, e; int n; K k;
+        //判断是否是空桶或者第一个节点为空，桶位置中链表或者的数的第一个节点为空则返回null
+        //否则遍历节点
         if ((tab = table) != null && (n = tab.length) > 0 &&
             (first = tab[(n - 1) & hash]) != null) {
+            //判断是否是首节点，是首节点则直接返回
             if (first.hash == hash && // always check first node
                 ((k = first.key) == key || (key != null && key.equals(k))))
                 return first;
+            // 非首节点
             if ((e = first.next) != null) {
+                //首节点是树节点，遍历红黑树
                 if (first instanceof TreeNode)
                     return ((TreeNode<K,V>)first).getTreeNode(hash, key);
                 do {
+                    //首节点不是树节点，遍历链表
                     if (e.hash == hash &&
                         ((k = e.key) == key || (key != null && key.equals(k))))
                         return e;
@@ -1954,6 +1964,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
          * Calls find for root node.
          */
         final TreeNode<K,V> getTreeNode(int h, Object k) {
+            //获得父节点 然后调用find方法找到合适的值
             return ((parent != null) ? root() : this).find(h, k, null);
         }
 
