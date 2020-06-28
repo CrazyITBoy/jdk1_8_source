@@ -473,6 +473,8 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     transient int size;
 
     /**
+     * 这个字段记录的是修改的次数或修改的结构次数
+     * 用处：用于迭代的时候，快速失败
      * The number of times this HashMap has been structurally modified
      * Structural modifications are those that change the number of mappings in
      * the HashMap or otherwise modify its internal structure (e.g.,
@@ -482,6 +484,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     transient int modCount;
 
     /**
+     * 下一个需要扩容的容量
      * The next size value at which to resize (capacity * load factor).
      *
      * @serial
@@ -676,7 +679,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
 
     /**
      * 新增元素
-     * 获取key的hash值
+     *
      *
      * @param key key with which the specified value is to be associated
      * @param value value to be associated with the specified key
@@ -691,7 +694,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
 
     /**
      * Implements Map.put and related methods.
-     * 如果
+     *
      *
      *
      * @param hash hash for key
@@ -708,30 +711,38 @@ public class HashMap<K,V> extends AbstractMap<K,V>
         if ((tab = table) == null || (n = tab.length) == 0)
             n = (tab = resize()).length;
 
+        //如果首节点为空 则创建首节点
         if ((p = tab[i = (n - 1) & hash]) == null)
             tab[i] = newNode(hash, key, value, null);
-        else {
+        else { //非首节点 遍历节点 找到合适的位置插入节点
             Node<K,V> e; K k;
+            //相同的key的节点已经存在，找到首节点，后面决定是否需要更换旧值
             if (p.hash == hash &&
                 ((k = p.key) == key || (key != null && key.equals(k))))
                 e = p;
+            //如果是树节点 遍历红黑树 找到合适的位置插入节点
             else if (p instanceof TreeNode)
                 e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
             else {
+                //链表
                 for (int binCount = 0; ; ++binCount) {
+                    //next节点为空 创建节点
                     if ((e = p.next) == null) {
                         p.next = newNode(hash, key, value, null);
                         //binCount 取 7的原因 因为当binCount = 0的时候，已经是第一个节点了
                         if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
-                            treeifyBin(tab, hash);
+                            treeifyBin(tab, hash);//树化
                         break;
                     }
+                    //同理key存在的情况
                     if (e.hash == hash &&
                         ((k = e.key) == key || (key != null && key.equals(k))))
                         break;
                     p = e;
                 }
             }
+
+            //存在同样key的节点 根据onlyIfAbsent 是否修改值
             if (e != null) { // existing mapping for key
                 V oldValue = e.value;
                 if (!onlyIfAbsent || oldValue == null)
@@ -740,7 +751,10 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                 return oldValue;
             }
         }
+        //修改的次数
         ++modCount;
+
+        //大于需要扩容的容量的时候则进行reSize
         if (++size > threshold)
             resize();
         afterNodeInsertion(evict);
