@@ -704,8 +704,10 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
                    boolean evict) {
         Node<K,V>[] tab; Node<K,V> p; int n, i;
+        //空桶则首先初始化桶大小
         if ((tab = table) == null || (n = tab.length) == 0)
             n = (tab = resize()).length;
+
         if ((p = tab[i = (n - 1) & hash]) == null)
             tab[i] = newNode(hash, key, value, null);
         else {
@@ -719,6 +721,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                 for (int binCount = 0; ; ++binCount) {
                     if ((e = p.next) == null) {
                         p.next = newNode(hash, key, value, null);
+                        //binCount 取 7的原因 因为当binCount = 0的时候，已经是第一个节点了
                         if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
                             treeifyBin(tab, hash);
                         break;
