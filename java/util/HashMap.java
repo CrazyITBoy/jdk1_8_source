@@ -714,7 +714,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
         //如果首节点为空 则创建首节点
         if ((p = tab[i = (n - 1) & hash]) == null)
             tab[i] = newNode(hash, key, value, null);
-        else { //非首节点 遍历节点 找到合适的位置插入节点
+        else { //首节点不空
             Node<K,V> e; K k;
             //相同的key的节点已经存在，找到首节点，后面决定是否需要更换旧值
             if (p.hash == hash &&
