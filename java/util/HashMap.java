@@ -695,8 +695,6 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     /**
      * Implements Map.put and related methods.
      *
-     *
-     *
      * @param hash hash for key
      * @param key the key
      * @param value the value to put
@@ -707,7 +705,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
                    boolean evict) {
         Node<K,V>[] tab; Node<K,V> p; int n, i;
-        //空桶则首先初始化桶大小
+        //空表，则首先初始化表
         if ((tab = table) == null || (n = tab.length) == 0)
             n = (tab = resize()).length;
 
@@ -742,7 +740,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                 }
             }
 
-            //存在同样key的节点 根据onlyIfAbsent 是否修改值
+            //存在同样key的节点 根据onlyIfAbsent或者原节点是否为空 是否修改值
             if (e != null) { // existing mapping for key
                 V oldValue = e.value;
                 if (!onlyIfAbsent || oldValue == null)
@@ -776,20 +774,26 @@ public class HashMap<K,V> extends AbstractMap<K,V>
         int oldThr = threshold;
         int newCap, newThr = 0;
         if (oldCap > 0) {
+            //超过最大值就不扩容了
             if (oldCap >= MAXIMUM_CAPACITY) {
                 threshold = Integer.MAX_VALUE;
                 return oldTab;
             }
+            //新的容量是原来的两倍但是小于最大容量并且原来的容量大于等于16就扩容
             else if ((newCap = oldCap << 1) < MAXIMUM_CAPACITY &&
                      oldCap >= DEFAULT_INITIAL_CAPACITY)
                 newThr = oldThr << 1; // double threshold
         }
+        //当前数组没有数据 使用初始化值
         else if (oldThr > 0) // initial capacity was placed in threshold
             newCap = oldThr;
         else {               // zero initial threshold signifies using defaults
+            //如果初始化值为0使用默认的初始化容量
             newCap = DEFAULT_INITIAL_CAPACITY;
             newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);
         }
+
+        //如果新的扩容容量为0 则重新计算新的扩容容量
         if (newThr == 0) {
             float ft = (float)newCap * loadFactor;
             newThr = (newCap < MAXIMUM_CAPACITY && ft < (float)MAXIMUM_CAPACITY ?
