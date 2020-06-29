@@ -802,22 +802,31 @@ public class HashMap<K,V> extends AbstractMap<K,V>
         threshold = newThr;
         @SuppressWarnings({"rawtypes","unchecked"})
         Node<K,V>[] newTab = (Node<K,V>[])new Node[newCap];
+        //开始扩容，将新的容量赋值给table
         table = newTab;
+        //原table不为空，将数据复制到新table
         if (oldTab != null) {
+            //遍历原数组
             for (int j = 0; j < oldCap; ++j) {
                 Node<K,V> e;
+                //桶不为空
                 if ((e = oldTab[j]) != null) {
                     oldTab[j] = null;
+                    //桶中链表只有一个，直接赋值
                     if (e.next == null)
                         newTab[e.hash & (newCap - 1)] = e;
+                    //节点为红黑树类型，则采用树到赋值方式进行赋值
                     else if (e instanceof TreeNode)
                         ((TreeNode<K,V>)e).split(this, newTab, j, oldCap);
+                    //进行链表到赋值
                     else { // preserve order
+                        //相当于创建两个链表， lo链表和hi链表
                         Node<K,V> loHead = null, loTail = null;
                         Node<K,V> hiHead = null, hiTail = null;
                         Node<K,V> next;
                         do {
                             next = e.next;
+                            //表示e在新表和原表在同一个下标数组下
                             if ((e.hash & oldCap) == 0) {
                                 if (loTail == null)
                                     loHead = e;
@@ -825,6 +834,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                                     loTail.next = e;
                                 loTail = e;
                             }
+                            //表示e在新表和原表在不同下标数组下
                             else {
                                 if (hiTail == null)
                                     hiHead = e;
@@ -833,10 +843,12 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                                 hiTail = e;
                             }
                         } while ((e = next) != null);
+                        //将lo链表赋值给j下标到数组元素中
                         if (loTail != null) {
                             loTail.next = null;
                             newTab[j] = loHead;
                         }
+                        //将hi链表放在j+oldCap下标数组元素下
                         if (hiTail != null) {
                             hiTail.next = null;
                             newTab[j + oldCap] = hiHead;
