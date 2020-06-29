@@ -714,7 +714,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
             tab[i] = newNode(hash, key, value, null);
         else { //首节点不空
             Node<K,V> e; K k;
-            //相同的key的节点已经存在，找到首节点，后面决定是否需要更换旧值
+            //相同的key的首节点已经存在，赋值给e，后面决定是否需要更换旧值
             if (p.hash == hash &&
                 ((k = p.key) == key || (key != null && key.equals(k))))
                 e = p;
