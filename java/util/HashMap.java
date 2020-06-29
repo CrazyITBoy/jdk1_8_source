@@ -861,13 +861,15 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     }
 
     /**
-     * Replaces all linked nodes in bin at index for given hash unless
-     * table is too small, in which case resizes instead.
+     * 树化
+     *
      */
     final void treeifyBin(Node<K,V>[] tab, int hash) {
         int n, index; Node<K,V> e;
+        //表为空，或者容量小于64则进行扩容操作
         if (tab == null || (n = tab.length) < MIN_TREEIFY_CAPACITY)
             resize();
+        //根据hash&数组长度得到链表的第一个元素
         else if ((e = tab[index = (n - 1) & hash]) != null) {
             TreeNode<K,V> hd = null, tl = null;
             do {
@@ -875,6 +877,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                 if (tl == null)
                     hd = p;
                 else {
+                    //构造成双向链表
                     p.prev = tl;
                     tl.next = p;
                 }
@@ -898,7 +901,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     }
 
     /**
-     * Removes the mapping for the specified key from this map if present.
+     * 删除元素
      *
      * @param  key key whose mapping is to be removed from the map
      * @return the previous value associated with <tt>key</tt>, or
@@ -964,8 +967,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     }
 
     /**
-     * Removes all of the mappings from this map.
-     * The map will be empty after this call returns.
+     * 清空所有元素
      */
     public void clear() {
         Node<K,V>[] tab;
