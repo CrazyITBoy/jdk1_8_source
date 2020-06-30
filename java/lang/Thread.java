@@ -1742,11 +1742,13 @@ class Thread implements Runnable {
      */
     public enum State {
         /**
+         * 新建状态，线程被创建出来，但是还没有开启
          * Thread state for a thread which has not yet started.
          */
         NEW,
 
         /**
+         *就绪状态，表示可运行的线程状态，但它可能在等待操作系统的调度
          * Thread state for a runnable thread.  A thread in the runnable
          * state is executing in the Java virtual machine but it may
          * be waiting for other resources from the operating system
@@ -1755,6 +1757,7 @@ class Thread implements Runnable {
         RUNNABLE,
 
         /**
+         * 阻塞状态，等待监视器锁，比如进入synchronized块/方法
          * Thread state for a thread blocked waiting for a monitor lock.
          * A thread in the blocked state is waiting for a monitor lock
          * to enter a synchronized block/method or
@@ -1764,7 +1767,13 @@ class Thread implements Runnable {
         BLOCKED,
 
         /**
-         * Thread state for a waiting thread.
+         *
+         * 等待状态
+         * 当线程调用了Object.wait()/Thread.join()/LockSupport.park()等方法会进入等待状态
+         * 进入等待状态的线程在等待另一个线程执行特定的动作
+         * 例如：一个线程调用了Object.wait()它在等待另一个线程调用Object.notify()或者Object.notifyAll()
+         *
+         *  Thread state for a waiting thread.
          * A thread is in the waiting state due to calling one of the
          * following methods:
          * <ul>
@@ -1785,6 +1794,11 @@ class Thread implements Runnable {
         WAITING,
 
         /**
+         *
+         * 计时等待状态
+         *
+         * 带有指定等待时间的等待线程
+         * 比如调用了带超时的 Object.wait()/Thread.join()
          * Thread state for a waiting thread with a specified waiting time.
          * A thread is in the timed waiting state due to calling one of
          * the following methods with a specified positive waiting time:
@@ -1799,6 +1813,8 @@ class Thread implements Runnable {
         TIMED_WAITING,
 
         /**
+         * 终止状态
+         * 线程执行完毕
          * Thread state for a terminated thread.
          * The thread has completed execution.
          */
