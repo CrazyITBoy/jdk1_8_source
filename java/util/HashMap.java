@@ -864,7 +864,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                         //(oldCap - 1)得到的低位全部是1
                         //新位置求法 m = (2*oldCap - 1) & hash
                         //（2oldCap - 1）（eg:11111）得到的低位也全部是1 但是比（oldCap-1）(eg:1111)多了一位为1,
-                        // 而这一位多出来的结果就是等于oldCap,假设oldCap是16，那么第四位与上的hash值是同一个即是 j
+                        // 而这一位多出来的结果就是等于oldCap,假设oldCap是16，那么低四位与上的hash值是同一个即是 j
                         // m=第四位与上的结果+第五位与上的结果就是新的结果即j+oldCap
                         if (hiTail != null) {
                             hiTail.next = null;
