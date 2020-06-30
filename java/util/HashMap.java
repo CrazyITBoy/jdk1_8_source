@@ -822,12 +822,20 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                     //进行链表到赋值
                     else { // preserve order
                         //相当于创建两个链表， lo链表和hi链表
+                        //一个用于记载低位，即复制到新表的同一个下标位置的链表lo
+                        //一个用于记载高位，即复制到新表中的oldCap+j位置的链表hi
                         Node<K,V> loHead = null, loTail = null;
                         Node<K,V> hiHead = null, hiTail = null;
                         Node<K,V> next;
                         do {
                             next = e.next;
                             //表示e在新表和原表在同一个下标数组下
+                            //为什么是(e.hash & oldCap) == 0 代表的是同一个位置
+                            //假设，oldCap = 16,oldCap低四位全部为0因此hash的结果取决于hash的第五位，Hash的第五位要么是0，要么是1
+                            //oldCap 与 hash &后的值 取决于hash第五位是0还是1，从而得出结果1 还是 0
+                            //由于求数组下标是通过（n-1）&hash 如果说新的位置下标大于15 那么必然hash的第五位是1，
+                            // 那么第五位是1的情况下，与上oldCap，结果是1 代表需要移到新的位置
+                            // 那么第五位是0的情况下，与上oldCap，结果是0 代表不需要移到新的位置，而是插入到新表的同一个下标位置
                             if ((e.hash & oldCap) == 0) {
                                 if (loTail == null)
                                     loHead = e;
@@ -850,6 +858,14 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                             newTab[j] = loHead;
                         }
                         //将hi链表放在j+oldCap下标数组元素下
+                        //为什么新位置的坐标求法是oldCap+j？
+                        //因为（n-1）&hash == 下标位置
+                        //原位置求法 j = (oldCap - 1) & hash
+                        //(oldCap - 1)得到的低位全部是1
+                        //新位置求法 m = (2*oldCap - 1) & hash
+                        //（2oldCap - 1）（eg:11111）得到的低位也全部是1 但是比（oldCap-1）(eg:1111)多了一位为1,
+                        // 而这一位多出来的结果就是等于oldCap,假设oldCap是16，那么第四位与上的hash值是同一个即是 j
+                        // m=第四位与上的结果+第五位与上的结果就是新的结果即j+oldCap
                         if (hiTail != null) {
                             hiTail.next = null;
                             newTab[j + oldCap] = hiHead;
