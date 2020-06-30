@@ -1707,6 +1707,7 @@ class Thread implements Runnable {
     }
 
     /**
+     * <a href = 'https://www.processon.com/diagraming/5ee491e65653bb2925969c95'>流程流转图</a> <br/>
      * A thread state.  A thread can be in one of the following states:
      * <ul>
      * <li>{@link #NEW}<br>
@@ -1748,7 +1749,7 @@ class Thread implements Runnable {
         NEW,
 
         /**
-         *就绪状态，表示可运行的线程状态，但它可能在等待操作系统的调度
+         * 就绪状态，表示可运行的线程状态，但它可能在等待操作系统的调度
          * Thread state for a runnable thread.  A thread in the runnable
          * state is executing in the Java virtual machine but it may
          * be waiting for other resources from the operating system
@@ -1773,7 +1774,7 @@ class Thread implements Runnable {
          * 进入等待状态的线程在等待另一个线程执行特定的动作
          * 例如：一个线程调用了Object.wait()它在等待另一个线程调用Object.notify()或者Object.notifyAll()
          *
-         *  Thread state for a waiting thread.
+         * Thread state for a waiting thread.
          * A thread is in the waiting state due to calling one of the
          * following methods:
          * <ul>
