@@ -680,6 +680,9 @@ class Thread implements Runnable {
     }
 
     /**
+     *
+     * 启动线程
+     * synchronized保证线程安全
      * Causes this thread to begin execution; the Java Virtual Machine
      * calls the <code>run</code> method of this thread.
      * <p>
@@ -699,6 +702,8 @@ class Thread implements Runnable {
      */
     public synchronized void start() {
         /**
+         *
+         * 判断线程状态是不是"NEW"，不是则抛出IllegalThreadStateException异常
          * This method is not invoked for the main method thread or "system"
          * group threads created/set up by the VM. Any new functionality added
          * to this method in the future may have to also be added to the VM.
@@ -715,10 +720,12 @@ class Thread implements Runnable {
 
         boolean started = false;
         try {
+            //调用jvm底层方法
             start0();
             started = true;
         } finally {
             try {
+                //线程启动失败
                 if (!started) {
                     group.threadStartFailed(this);
                 }
