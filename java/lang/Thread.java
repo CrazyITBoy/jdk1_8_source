@@ -297,7 +297,6 @@ class Thread implements Runnable {
     public static native void yield();
 
     /**
-     * 让当前执行的线程休眠，参数是休眠的毫秒值
      * Causes the currently executing thread to sleep (temporarily cease
      * execution) for the specified number of milliseconds, subject to
      * the precision and accuracy of system timers and schedulers. The thread
@@ -312,6 +311,7 @@ class Thread implements Runnable {
     public static native void sleep(long millis) throws InterruptedException;
 
     /**
+     * 让当前执行的线程休眠，参数是休眠的毫秒值，和纳秒值
      * Causes the currently executing thread to sleep (temporarily cease
      * execution) for the specified number of milliseconds plus the specified
      * number of nanoseconds, subject to the precision and accuracy of system
@@ -753,6 +753,8 @@ class Thread implements Runnable {
     }
 
     /**
+     * 强制线程停止执行
+     * 该方法已经被弃用，会导致线程不安全
      * Forces the thread to stop executing.
      * <p>
      * If there is a security manager installed, its <code>checkAccess</code>
@@ -1047,6 +1049,9 @@ class Thread implements Runnable {
     }
 
     /**
+     * 更改线程优先级
+     * 首先调用无参的checkAccess方法，可能会抛出SecurityException异常
+     * 新的优先级要在MAX_PRIORITY和MIN_PRIORITY之间并且不能大于线程组规定的最大优先级
      * Changes the priority of this thread.
      * <p>
      * First the <code>checkAccess</code> method of this thread is called
@@ -1085,6 +1090,7 @@ class Thread implements Runnable {
     }
 
     /**
+     * 返回该线程的优先级
      * Returns this thread's priority.
      *
      * @return this thread's priority.
@@ -1095,6 +1101,8 @@ class Thread implements Runnable {
     }
 
     /**
+     * 改变线程名字为参数name
+     * 该方法是线程安全的
      * Changes the name of this thread to be equal to the argument
      * <code>name</code>.
      * <p>
@@ -1121,6 +1129,7 @@ class Thread implements Runnable {
     }
 
     /**
+     * 返回线程名字
      * Returns this thread's name.
      *
      * @return this thread's name.
@@ -1131,6 +1140,7 @@ class Thread implements Runnable {
     }
 
     /**
+     * 返回该线程属于的线程组，如果线程已死则返回空
      * Returns the thread group to which this thread belongs.
      * This method returns null if this thread has died
      * (been stopped).
@@ -1142,6 +1152,7 @@ class Thread implements Runnable {
     }
 
     /**
+     * 返回当前线程所在的线程组中活跃的线程数，这个值是一个估值，因为线程状态实时变化
      * Returns an estimate of the number of active threads in the current
      * thread's {@linkplain java.lang.ThreadGroup thread group} and its
      * subgroups. Recursively iterates over all subgroups in the current
@@ -1202,6 +1213,9 @@ class Thread implements Runnable {
     public native int countStackFrames();
 
     /**
+     * 当前线程等待该线程终止的时长为millis毫秒，
+     * 如果在millis毫秒该线程还没执行完，当前线程进入就绪状态，等待cpu调度
+     *
      * Waits at most {@code millis} milliseconds for this thread to
      * die. A timeout of {@code 0} means to wait forever.
      *
@@ -1221,21 +1235,25 @@ class Thread implements Runnable {
             throws InterruptedException {
         long base = System.currentTimeMillis();
         long now = 0;
-
+        //超时时间小于0抛异常
         if (millis < 0) {
             throw new IllegalArgumentException("timeout value is negative");
         }
-
+        //超时时间等于0表示无限等待，直到线程执行完毕为止
         if (millis == 0) {
+            //如果该线程活跃，则一直等待
             while (isAlive()) {
                 wait(0);
             }
         } else {
+            //循环判断
             while (isAlive()) {
                 long delay = millis - now;
+                //时间到了则退出循环
                 if (delay <= 0) {
                     break;
                 }
+                //调用本地方法wait
                 wait(delay);
                 now = System.currentTimeMillis() - base;
             }
@@ -1280,6 +1298,7 @@ class Thread implements Runnable {
     }
 
     /**
+     * 等待该线程终止
      * Waits for this thread to die.
      *
      * <p> An invocation of this method behaves in exactly the same
@@ -1308,6 +1327,7 @@ class Thread implements Runnable {
     }
 
     /**
+     * 将该线程标记为守护线程(true)或者用户线程(false)
      * Marks this thread as either a {@linkplain #isDaemon daemon} thread
      * or a user thread. The Java Virtual Machine exits when the only
      * threads running are all daemon threads.
@@ -1328,6 +1348,7 @@ class Thread implements Runnable {
     }
 
     /**
+     * 测试该线程是否是守护线程
      * Tests if this thread is a daemon thread.
      *
      * @return <code>true</code> if this thread is a daemon thread;
@@ -1339,6 +1360,7 @@ class Thread implements Runnable {
     }
 
     /**
+     * 判断当前运行的线程是否具有修改线程的权限
      * Determines if the currently running thread has permission to
      * modify this thread.
      * <p>
@@ -1358,6 +1380,7 @@ class Thread implements Runnable {
     }
 
     /**
+     * 返回该线程的字符串表示形式，包括线程名，优先级，线程组
      * Returns a string representation of this thread, including the
      * thread's name, priority, and thread group.
      *
