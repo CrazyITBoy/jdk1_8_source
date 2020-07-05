@@ -203,7 +203,9 @@ public class ReentrantLock implements Lock, java.io.Serializable {
          * acquire on failure.
          */
         final void lock() {
+            //尝试修改此锁的状态
             if (compareAndSetState(0, 1))
+                //当前线程设置为此锁的持有者
                 setExclusiveOwnerThread(Thread.currentThread());
             else
                 acquire(1);
@@ -215,11 +217,15 @@ public class ReentrantLock implements Lock, java.io.Serializable {
     }
 
     /**
+     * 公平锁
      * Sync object for fair locks
      */
     static final class FairSync extends Sync {
         private static final long serialVersionUID = -3000897897090466540L;
 
+        /**
+         * 公平锁加锁的实现
+         */
         final void lock() {
             acquire(1);
         }
@@ -254,16 +260,23 @@ public class ReentrantLock implements Lock, java.io.Serializable {
      * This is equivalent to using {@code ReentrantLock(false)}.
      */
     public ReentrantLock() {
+        //默认采用非公平锁的实现
         sync = new NonfairSync();
     }
 
     /**
+     * 如何理解公平锁和非公平锁？
+     * 公平锁：采用请求的顺序来决定获得锁的顺序，每个新的线程会判断队列是否为空
+     * 或者是否是队列的第一个，如果是直接获取锁，否则加入等待队列.
+     * 非公平锁：允许队列插队获得锁，每个新的线程都是直接尝试去获取锁，
+     * 获取不了锁的时采用公平锁的方式
      * Creates an instance of {@code ReentrantLock} with the
      * given fairness policy.
      *
      * @param fair {@code true} if this lock should use a fair ordering policy
      */
     public ReentrantLock(boolean fair) {
+        //有参构造 根据传参决定是否是采用公平锁的实现
         sync = fair ? new FairSync() : new NonfairSync();
     }
 
