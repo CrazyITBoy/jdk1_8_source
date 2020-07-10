@@ -793,6 +793,7 @@ public abstract class AbstractQueuedSynchronizer
      * @return {@code true} if thread should block
      */
     private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) {
+        //获取前驱节点的转态
         int ws = pred.waitStatus;
         if (ws == Node.SIGNAL)
             /*
@@ -859,12 +860,12 @@ public abstract class AbstractQueuedSynchronizer
         try {
             boolean interrupted = false;
             for (;;) {
-                final Node p = node.predecessor();
-                if (p == head && tryAcquire(arg)) {
-                    setHead(node);
-                    p.next = null; // help GC
-                    failed = false;
-                    return interrupted;
+                final Node p = node.predecessor();//拿到当前线程节点的前一个节点
+                if (p == head && tryAcquire(arg)) {//前一个节点是头节点并且尝试获取锁并且成功 继续下面的操作
+                    setHead(node); //设置当前节点为头节点
+                    p.next = null; // help GC 设置为null 方便垃圾回收
+                    failed = false; //加锁成功
+                    return interrupted; //返回中断信息
                 }
                 if (shouldParkAfterFailedAcquire(p, node) &&
                     parkAndCheckInterrupt())
@@ -1183,6 +1184,7 @@ public abstract class AbstractQueuedSynchronizer
     }
 
     /**
+     * 排队方法
      * Acquires in exclusive mode, ignoring interrupts.  Implemented
      * by invoking at least once {@link #tryAcquire},
      * returning on success.  Otherwise the thread is queued, possibly
@@ -1195,8 +1197,8 @@ public abstract class AbstractQueuedSynchronizer
      *        can represent anything you like.
      */
     public final void acquire(int arg) {
-        if (!tryAcquire(arg) &&
-            acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
+        if (!tryAcquire(arg) && //再次尝试获得锁
+            acquireQueued(addWaiter(Node.EXCLUSIVE), arg)) //加入排队队列
             selfInterrupt();
     }
 
