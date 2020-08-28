@@ -193,7 +193,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
     }
 
     /**
-     * Sync object for non-fair locks
+     * 非公平锁的实现
      */
     static final class NonfairSync extends Sync {
         private static final long serialVersionUID = 7316153563782823691L;
@@ -208,6 +208,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
                 //当前线程设置为此锁的持有者
                 setExclusiveOwnerThread(Thread.currentThread());
             else
+                //当无法获得锁的时候 继续获得锁
                 acquire(1);
         }
 
